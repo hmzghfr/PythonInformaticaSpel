@@ -1,0 +1,42 @@
+entrypoint = "script.js"
+modules = ["web", "python-base-3.13"]
+
+[nix]
+channel = "stable-24_11"
+packages = ["static-web-server"]
+
+[deployment]
+publicDir = "/"
+deploymentTarget = "static"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Serve static"
+mode = "parallel"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "static-web-server -a 0.0.0.0 -d . -p 5000 -e false"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Serve static"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[agent]
+expertMode = true
